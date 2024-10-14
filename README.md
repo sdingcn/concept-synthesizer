@@ -72,9 +72,18 @@ void g(U x) {
 template <typename V>
 // added by concept-synth, original LN: 11
 requires
-requires (V x0) { x0++; }
+(
+ requires (V o) { o.G(); } &&
+ requires (V o) { o.F(); } &&
+ requires (V x0) { x0++; }
+)
 void h(V x) {
     x++;
+    if (x) {
+        f(x);
+    } else {
+        g(x);
+    }
 }
 
 int main() {

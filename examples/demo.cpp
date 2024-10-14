@@ -11,6 +11,11 @@ void g(U x) {
 template <typename V>
 void h(V x) {
     x++;
+    if (x) {
+        f(x);
+    } else {
+        g(x);
+    }
 }
 
 int main() {
