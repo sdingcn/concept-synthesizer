@@ -5,8 +5,7 @@ Automatically synthesizing C++20 template constraints for function templates
 
 This project was tested on MacOS (Apple M1), but it should also work on Linux platforms.
 
-Requirements include `python3`, `wget`, `unzip`, `git`, `cmake`, `make`,
-and a C++ compiler supporting C++20 (such as `clang++`).
+Requirements include `python3`, `wget`, `unzip`, `git`, `cmake`, `make`, `clang++`.
 
 Building the synthesizer needs the source code of Clang/LLVM,
 which will be downloaded by the build script `build.sh`.
@@ -97,6 +96,19 @@ int main() {
 
 ### run the automatic error message reduction measurement script
 
+This script assumes there is a command `clang++` on the machine.
+So it is testing the error messages of that compiler.
+
 ```
 python3 measure-error.py
 ```
+
+### known issues
+
+If you're experiencing compatibility issues
+(e.g. you use the `clang++` on your machine to pre-process C++ files
+but then use this in-source built synthesizer on the pre-processed files),
+you can consider building `clang` and `libcxx` from the source as well.
+
+It is known that the detailed experimental numbers may change among
+different runs. The reason is being investigated, but should be non-essential.
