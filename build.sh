@@ -15,4 +15,4 @@ echo "add_subdirectory(concept-synthesizer)" >> "$LLVM_DIR/clang-tools-extra/CMa
 mkdir "$LLVM_DIR/build/"
 cd "$LLVM_DIR/build"
 cmake -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" ../llvm
-make -j8
+make concept-synthesizer -j8
