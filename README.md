@@ -103,6 +103,15 @@ So it is testing the error messages of that compiler.
 python3 measure-error.py
 ```
 
+### docker images
+
+It's recommended to build a linux/amd64 image which can then be run on both
+amd64 and Apple M1 (arm64) (through Rosetta 2) as described [here](https://stackoverflow.com/questions/67458621/how-to-run-amd64-docker-image-on-arm64-host-platform).
+
+The reverse direction looks [more complicated](https://stackoverflow.com/questions/68675532/how-to-run-arm64-docker-images-on-amd64-host-platform).
+
+Multi-platform images also look [more complicated](https://docs.docker.com/build/building/multi-platform/).
+
 ### known issues
 
 If you're experiencing compatibility issues
