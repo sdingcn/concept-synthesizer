@@ -97,9 +97,12 @@ def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
     n = len(invalid_calls)
     original_error_lengths = []
     constrained_error_lengths = []
+    constraint_not_satisfied_count = 0
     for (i, call) in enumerate(invalid_calls):
         error1 = get_error_message(paths["clang"], compose_invalid_code(preprocessed_code, call))
         error2 = get_error_message(paths["clang"], compose_invalid_code(constrained_code, call))
+        if "constraints not satisfied" in error2:
+            constraint_not_satisfied_count += 1
         if i % 10 == 0:
             print("* sample {{{")
             print(error1)
@@ -114,6 +117,7 @@ def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
         original_error_lengths.append(original_error_length)
         constrained_error_lengths.append(constrained_error_length)
     if n > 0:
+        print(f"total count = {n}, constraint not satisfied = {constraint_not_satisfied_count}")
         print(f"original average = {round(sum(original_error_lengths) / n, 3)}")
         print(f"constrained average = {round(sum(constrained_error_lengths) / n, 3)}")
         print("original distribution:")
