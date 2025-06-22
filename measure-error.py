@@ -72,17 +72,17 @@ def classify(lst: List[int]) -> List[Tuple[int, int, int]]:
     return results
 
 def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
-    print(f"### started error message measurement for {fpath}")
+    print(f">>> started error message measurement for {fpath}")
     paths = {
         "clang": "clang++",
         "synthesizer": "./llvm-project-llvmorg-19.1.1/build/bin/concept-synthesizer",
         "source": fpath,
-        "preprocessed": fpath + ".preprocessed.cc",
+        "ii": os.path.splitext(fpath)[0] + ".ii",
     }
-    preprocessed_code = call_preprocessor(paths["clang"], paths["source"], includes)
-    with open(paths["preprocessed"], "w") as f:
-        f.write(preprocessed_code)
-    synthesizer_output = call_synthesizer(paths["synthesizer"], paths["preprocessed"])
+    ii_code = call_preprocessor(paths["clang"], paths["source"], includes)
+    with open(paths["ii"], "w") as f:
+        f.write(ii_code)
+    synthesizer_output = call_synthesizer(paths["synthesizer"], paths["ii"])
     constrained_code = cut_synthesizer_output_section(synthesizer_output, "Constrained code")
     invalid_calls = [
         ic
@@ -99,7 +99,7 @@ def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
     constrained_error_lengths = []
     constraint_not_satisfied_count = 0
     for (i, call) in enumerate(invalid_calls):
-        error1 = get_error_message(paths["clang"], compose_invalid_code(preprocessed_code, call))
+        error1 = get_error_message(paths["clang"], compose_invalid_code(ii_code, call))
         error2 = get_error_message(paths["clang"], compose_invalid_code(constrained_code, call))
         if "constraints not satisfied" in error2:
             constraint_not_satisfied_count += 1
@@ -131,10 +131,9 @@ def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
 
 if __name__ == "__main__":
     if not os.path.exists('./boost_1_84_0/'):
-        print("### downloading boost...")
+        print(">>> downloading boost...")
         execute(["wget", "https://archives.boost.io/release/1.84.0/source/boost_1_84_0.zip"])
-        print("### unzipping boost...")
+        print(">>> extracting boost...")
         execute(["unzip", "-q", "boost_1_84_0.zip"])
-        execute(["rm", "boost_1_84_0.zip"])
-    run_benchmark("./examples/stl-algo.cpp", [], "")
-    run_benchmark("./examples/boost-sf.cpp", ["./boost_1_84_0/"], "boost")
+    run_benchmark("./test/stl_algorithm.cpp", [], "")
+    run_benchmark("./test/boost_special_functions.cpp", ["./boost_1_84_0/"], "boost")

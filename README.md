@@ -1,28 +1,20 @@
 # concept-synthesizer
-Automatically synthesizing C++20 template constraints for function templates
+
+automatically synthesizing C++20 template constraints for function templates
 
 ## dependencies
 
-This project was tested on MacOS (Apple M1), but it should also work on Linux platforms.
+This project was tested on MacOS (Apple M1), but should also work on major Linux platforms.
 
 Requirements include `python3`, `wget`, `unzip`, `git`, `cmake`, `make`, `clang++`.
 
-Building the synthesizer needs the source code of Clang/LLVM,
-which will be downloaded by the build script `build.sh`.
-
-The error message reduction measurement script `measure-error.py`
-has two default measurement targets (STL `algorithm` and Boost `special_functions`),
-where the Boost library will be automatically downloaded.
-
 ## build
 
-```
-./build.sh
-```
+Run `./build.sh` to download LLVM source code into this repository and build the project.
 
 ## run
 
-### run the synthesizer on a single C++ file and interpret the result
+### run on single file
 
 ```
 ./llvm-project-llvmorg-19.1.1/build/bin/concept-synthesizer <c++-file> -- -std=c++20
@@ -94,30 +86,26 @@ int main() {
 [-[]-]
 ```
 
-### run the automatic error message reduction measurement script
+### run the automatic error measurement script
 
-This script assumes there is a command `clang++` on the machine.
-So it is testing the error messages of that compiler.
+Run `python3 measure.py` to download the Boost library,
+run the synthesizer on `test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,
+and report error message reductions.
 
-```
-python3 measure-error.py
-```
+## miscellaneous
 
-### docker images
+### Docker images
 
-It's recommended to build a linux/amd64 image which can then be run on both
-amd64 and Apple M1 (arm64) (through Rosetta 2) as described [here](https://stackoverflow.com/questions/67458621/how-to-run-amd64-docker-image-on-arm64-host-platform).
-
-The reverse direction looks [more complicated](https://stackoverflow.com/questions/68675532/how-to-run-arm64-docker-images-on-amd64-host-platform).
-
-Multi-platform images also look [more complicated](https://docs.docker.com/build/building/multi-platform/).
+If you want to build the project into a Docker image,
+It's recommended to build a linux/amd64 image which can then run on both
+amd64 and Apple M1 (arm64) (through Rosetta 2) as described
+[here](https://stackoverflow.com/questions/67458621/how-to-run-amd64-docker-image-on-arm64-host-platform).
+The reverse direction looks
+[more complicated](https://stackoverflow.com/questions/68675532/how-to-run-arm64-docker-images-on-amd64-host-platform).
+Multi-platform images also look
+[more complicated](https://docs.docker.com/build/building/multi-platform/).
 
 ### known issues
 
-If you're experiencing compatibility issues
-(e.g. you use the `clang++` on your machine to pre-process C++ files
-but then use this in-source built synthesizer on the pre-processed files),
-you can consider building `clang` and `libcxx` from the source as well.
-
-It is known that the detailed experimental numbers may change among
+It is known that the experimental numbers may change among
 different runs. The reason is being investigated, but should be non-essential.
