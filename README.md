@@ -29,6 +29,10 @@ The synthesizer outputs five "sections" to `stdout`.
 
 ### run the automatic error measurement script
 
+If you are on MacOS, you may need to run
+`export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)`
+before invoking the script.
+
 Run `python3 measure.py` to run the synthesizer on
 `test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,
 and report error message reductions.
