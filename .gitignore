@@ -1,5 +1,5 @@
 /llvm-project-llvmorg-19.1.1/
 /boost_1_84_0/
-/examples/*.cc
+/test/*.ii
 /.DS_Store
 /*.zip

@@ -6,22 +6,19 @@ automatically synthesizing C++20 template constraints for function templates
 
 This project was tested on MacOS (Apple M1), but should also work on major Linux platforms.
 
-Requirements include `python3`, `wget`, `unzip`, `git`, `cmake`, `make`, `clang++`.
+Requirements include `python3`, `wget`, `unzip`, `git`, `cmake`, `make`, `clang++/g++`.
 
-## build
+## setup
 
-Run `./build.sh` to download LLVM source code into this repository and build the project.
+Run `./setup.sh` to download LLVM source code and build the project.
 
 ## run
 
-### run on single file
+### run on a single `.ii` file
 
 ```
-./llvm-project-llvmorg-19.1.1/build/bin/concept-synthesizer <c++-file> -- -std=c++20
+./llvm-project-llvmorg-19.1.1/build_frontend/bin/concept-synthesizer <c++-file> -- -x c++-cpp-output -std=c++20
 ```
-
-You may need to tell the synthesizer include search paths for your C++ file, via `-I`.
-You can also use a pre-processed C++ file.
 
 The synthesizer outputs five "sections" to `stdout`.
 + Individual results: (nontrivial) synthesis information for each type template parameter
@@ -30,66 +27,10 @@ The synthesizer outputs five "sections" to `stdout`.
 + Constrained code: this is the rewritten C++ code
 + Resource consumption: currently only reports the time taken
 
-For example, running the synthesizer on `examples/demo.cpp`
-outputs the following result (certain details are omitted).
-
-```
-[-[Individual results]-]
-...
-[-[]-]
-[-[Invalid calls]-]
-...
-[-[]-]
-[-[Statistics]-]
-...
-[-[]-]
-[-[Constrained code]-]
-template <typename T>
-// added by concept-synth, original LN: 1
-requires
-requires (T o) { o.F(); }
-void f(T x) {
-    x.F();
-}
-
-template <typename U>
-// added by concept-synth, original LN: 6
-requires
-requires (U o) { o.G(); }
-void g(U x) {
-    x.G();
-}
-
-template <typename V>
-// added by concept-synth, original LN: 11
-requires
-(
- requires (V o) { o.G(); } &&
- requires (V o) { o.F(); } &&
- requires (V x0) { x0++; }
-)
-void h(V x) {
-    x++;
-    if (x) {
-        f(x);
-    } else {
-        g(x);
-    }
-}
-
-int main() {
-}
-
-[-[]-]
-[-[Resource consumption]-]
-...
-[-[]-]
-```
-
 ### run the automatic error measurement script
 
-Run `python3 measure.py` to download the Boost library,
-run the synthesizer on `test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,
+Run `python3 measure.py` to run the synthesizer on
+`test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,
 and report error message reductions.
 
 ## miscellaneous

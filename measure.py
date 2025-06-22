@@ -3,6 +3,10 @@ import subprocess
 import sys
 from typing import List, Tuple, Union
 
+CLANG = "./llvm-project-llvmorg-19.1.1/build_frontend/bin/clang-19"
+SYNTHESIZER = "./llvm-project-llvmorg-19.1.1/build_frontend/bin/concept-synthesizer"
+HEADERS = "./llvm-project-llvmorg-19.1.1/build_headers/include/c++/v1"
+
 def execute(cmd: List[str], i: Union[None, str] = None) -> Tuple[int, str, str]:
     result = subprocess.run(
         cmd,
@@ -12,17 +16,17 @@ def execute(cmd: List[str], i: Union[None, str] = None) -> Tuple[int, str, str]:
     )
     return (result.returncode, result.stdout, result.stderr)
 
-def call_preprocessor(clang_path: str, fpath: str, ipaths: List[str]) -> str:
-    cmd = [clang_path, "-std=c++20", "-E", "-P", fpath]
-    for ipath in ipaths:
-        cmd.append("-I" + ipath)
+def call_preprocessor(f_path: str, h_paths: List[str]) -> str:
+    cmd = [CLANG, "-nostdinc++", "-isystem", HEADERS, "-std=c++20", "-E", "-P", f_path]
+    for h_path in h_paths:
+        cmd.append("-I" + h_path)
     result = execute(cmd)
     if result[0] != 0:
         sys.exit(f"Error: {cmd} failed\n{result[2]}")
     return result[1]
 
-def call_synthesizer(synthesizer_path: str, fpath: str) -> str:
-    cmd = [synthesizer_path, fpath, "--", "-std=c++20"]
+def call_synthesizer(f_path: str) -> str:
+    cmd = [SYNTHESIZER, f_path, "--", "-x", "c++-cpp-output", "-std=c++20"]
     result = execute(cmd)
     if result[0] != 0:
         sys.exit(f"Error: {cmd} failed\n{result[2]}")
@@ -41,8 +45,8 @@ def compose_invalid_code(main: str, call: str) -> str:
     lines.insert(-1, call)
     return "\n".join(lines)
 
-def get_error_message(clang_path: str, code: str) -> str:
-    cmd = [clang_path, "-x", "c++", "-std=c++20", "-w", "-"]
+def get_error_message(code: str) -> str:
+    cmd = [CLANG, "-x", "c++-cpp-output", "-std=c++20", "-fsyntax-only", "-w", "-"]
     result = execute(cmd, code)
     if result[0] == 0:
         sys.exit(f"Error: {cmd} didn't fail as expected\n{result[1]}")
@@ -71,23 +75,18 @@ def classify(lst: List[int]) -> List[Tuple[int, int, int]]:
         results.append((start, start + step, cnt))
     return results
 
-def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
-    print(f">>> started error message measurement for {fpath}")
-    paths = {
-        "clang": "clang++",
-        "synthesizer": "./llvm-project-llvmorg-19.1.1/build/bin/concept-synthesizer",
-        "source": fpath,
-        "ii": os.path.splitext(fpath)[0] + ".ii",
-    }
-    ii_code = call_preprocessor(paths["clang"], paths["source"], includes)
-    with open(paths["ii"], "w") as f:
+def run_benchmark(f_path: str, h_paths: List[str], name_prefix: str) -> None:
+    print(f">>> started error message measurement for {f_path}")
+    ii_path = os.path.splitext(f_path)[0] + ".ii"
+    ii_code = call_preprocessor(f_path, h_paths)
+    with open(ii_path, "w") as f:
         f.write(ii_code)
-    synthesizer_output = call_synthesizer(paths["synthesizer"], paths["ii"])
+    synthesizer_output = call_synthesizer(ii_path)
     constrained_code = cut_synthesizer_output_section(synthesizer_output, "Constrained code")
     invalid_calls = [
-        ic
-        for ic in cut_synthesizer_output_section(synthesizer_output, "Invalid calls").splitlines()
-        if ic and get_callee_name(ic).startswith(name_prefix)
+        call
+        for call in cut_synthesizer_output_section(synthesizer_output, "Invalid calls").splitlines()
+        if call and get_callee_name(call).startswith(name_prefix)
     ]
     print("[statistics]")
     print(cut_synthesizer_output_section(synthesizer_output, "Statistics"))
@@ -99,8 +98,8 @@ def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
     constrained_error_lengths = []
     constraint_not_satisfied_count = 0
     for (i, call) in enumerate(invalid_calls):
-        error1 = get_error_message(paths["clang"], compose_invalid_code(ii_code, call))
-        error2 = get_error_message(paths["clang"], compose_invalid_code(constrained_code, call))
+        error1 = get_error_message(compose_invalid_code(ii_code, call))
+        error2 = get_error_message(compose_invalid_code(constrained_code, call))
         if "constraints not satisfied" in error2:
             constraint_not_satisfied_count += 1
         if i % 10 == 0:
@@ -130,10 +129,5 @@ def run_benchmark(fpath: str, includes: List[str], name_prefix: str) -> None:
             print(f"[{begin}, {end}) = {count}")
 
 if __name__ == "__main__":
-    if not os.path.exists('./boost_1_84_0/'):
-        print(">>> downloading boost...")
-        execute(["wget", "https://archives.boost.io/release/1.84.0/source/boost_1_84_0.zip"])
-        print(">>> extracting boost...")
-        execute(["unzip", "-q", "boost_1_84_0.zip"])
     run_benchmark("./test/stl_algorithm.cpp", [], "")
     run_benchmark("./test/boost_special_functions.cpp", ["./boost_1_84_0/"], "boost")
