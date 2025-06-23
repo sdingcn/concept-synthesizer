@@ -2682,7 +2682,7 @@ public:
           if (pos == std::string::npos) {
             break;
           } else {
-            if (pos - 1 >= 0 && contains(" ()<>,", code[pos - 1]) &&
+            if (pos >= 1 && contains(" ()<>,", code[pos - 1]) &&
                 pos + a_len < code_len && contains(" ()<>,", code[pos + a_len])) {
               replacements.push_back(std::make_tuple(pos, a_len, b));
               cur = pos + a_len;

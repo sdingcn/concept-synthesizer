@@ -2,6 +2,7 @@
 
 set -e
 
+N_THREADS=8
 BOOST_URL="https://archives.boost.io/release/1.84.0/source/boost_1_84_0.zip"
 BOOST_ZIP="boost_1_84_0.zip"
 BOOST_DIR="boost_1_84_0"
@@ -53,7 +54,7 @@ cmake -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" \
       -DCMAKE_BUILD_TYPE=Release \
       -G "Unix Makefiles" \
       ../llvm
-make clang concept-synthesizer -j8
+make clang concept-synthesizer -j$N_THREADS
 cd ../../
 
 echo ">>> building headers"
@@ -63,5 +64,5 @@ cmake -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
       -DCMAKE_BUILD_TYPE=Release \
       -G "Unix Makefiles" \
       ../runtimes
-make cxx -j8
+make cxx -j$N_THREADS
 cd ../../

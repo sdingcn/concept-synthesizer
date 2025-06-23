@@ -5,7 +5,7 @@ automatically synthesizing C++20 template constraints for function templates
 ## dependencies
 
 + Platform: MacOS/Linux.
-+ Software: python3, wget, unzip, git, cmake, make, clang++/g++.
++ Software: python3 (>= 3.5), wget, unzip, git, cmake, make, clang++/g++.
 
 ## setup
 
@@ -15,7 +15,7 @@ Run `./setup.sh` to download LLVM and Boost (only needed for testing) and build 
 
 *If you are on MacOS, you may need to run
 `export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)`
-before invoking the script.*
+before running the synthesizer.*
 
 ### run on a single file
 
