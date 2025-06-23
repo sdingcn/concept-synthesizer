@@ -19,7 +19,7 @@ if test -d "$LLVM_DIR"; then
     exit 1
 fi
 
-if test -d "$BOOST_ZIP"; then
+if test -e "$BOOST_ZIP"; then
     echo ">>> found existing Boost zip"
 else
     echo ">>> downloading Boost source code"
@@ -29,7 +29,7 @@ fi
 echo ">>> extracting Boost source code"
 unzip -q "$BOOST_ZIP"
 
-if test -d "$LLVM_ZIP"; then
+if test -e "$LLVM_ZIP"; then
     echo ">>> found existing LLVM zip"
 else
     echo ">>> downloading LLVM source code"
@@ -59,7 +59,7 @@ cd ../../
 echo ">>> building headers"
 mkdir "$LLVM_DIR/build_headers/"
 cd "$LLVM_DIR/build_headers/"
-cmake -DLLVM_ENABLE_RUNTIMES="libcxx" \
+cmake -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind" \
       -DCMAKE_BUILD_TYPE=Release \
       -G "Unix Makefiles" \
       ../runtimes

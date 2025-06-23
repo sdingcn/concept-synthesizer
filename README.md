@@ -13,6 +13,10 @@ Run `./setup.sh` to download LLVM and Boost (only needed for testing) and build 
 
 ## run
 
+*If you are on MacOS, you may need to run
+`export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)`
+before invoking the script.*
+
 ### run on a single file
 
 ```
@@ -41,10 +45,6 @@ The synthesizer prints 5 sections to the standard output.
 + Resource consumption: the execution time of the synthesizer
 
 ### run the automatic testing script
-
-*If you are on MacOS, you may need to run
-`export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)`
-before invoking the script.*
 
 Run `python3 measure.py` to run the synthesizer on
 `test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,
