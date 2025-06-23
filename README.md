@@ -4,34 +4,47 @@ automatically synthesizing C++20 template constraints for function templates
 
 ## dependencies
 
-This project was tested on MacOS (Apple M1), but should also work on major Linux platforms.
-
-Requirements include `python3`, `wget`, `unzip`, `git`, `cmake`, `make`, `clang++/g++`.
++ Platform: MacOS/Linux.
++ Software: python3, wget, unzip, git, cmake, make, clang++/g++.
 
 ## setup
 
-Run `./setup.sh` to download LLVM source code and build the project.
+Run `./setup.sh` to download LLVM and Boost (only needed for testing) and build the project.
 
 ## run
 
-### run on a single `.ii` file
+### run on a single file
 
 ```
-./llvm-project-llvmorg-19.1.1/build_frontend/bin/concept-synthesizer <c++-file> -- -x c++-cpp-output -std=c++20
+./llvm-project-llvmorg-19.1.1/build_frontend/bin/clang-19 \
+  -nostdinc++ \
+  -isystem ./llvm-project-llvmorg-19.1.1/build_headers/include/c++/v1 \
+  -std=c++20 \
+  -E \
+  -P \
+  -I<include-path-1> -I<include-path-2> ... \
+  -o <file-path>.ii \
+  <file-path>.cpp
+
+./llvm-project-llvmorg-19.1.1/build_frontend/bin/concept-synthesizer \
+  <file-path>.ii \
+  -- \
+  -x c++-cpp-output \
+  -std=c++20
 ```
 
-The synthesizer outputs five "sections" to `stdout`.
-+ Individual results: (nontrivial) synthesis information for each type template parameter
-+ Invalid calls: generated calls to these function templates (used to test error messages)
-+ Statistics: synthesis statistics
-+ Constrained code: this is the rewritten C++ code
-+ Resource consumption: currently only reports the time taken
+The synthesizer prints 5 sections to the standard output.
++ Individual results: source location, synthesized constraints, etc. for each type template parameter
++ Invalid calls: generated invalid calls to these function templates (needed for testing)
++ Statistics: numbers of function templates, type template parameters, etc.
++ Constrained code: the C++ code with constraints added by the synthesizer
++ Resource consumption: the execution time of the synthesizer
 
-### run the automatic error measurement script
+### run the automatic testing script
 
-If you are on MacOS, you may need to run
+*If you are on MacOS, you may need to run
 `export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)`
-before invoking the script.
+before invoking the script.*
 
 Run `python3 measure.py` to run the synthesizer on
 `test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,

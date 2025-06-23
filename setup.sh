@@ -19,14 +19,22 @@ if test -d "$LLVM_DIR"; then
     exit 1
 fi
 
-echo ">>> downloading Boost source code"
-wget "$BOOST_URL"
+if test -d "$BOOST_ZIP"; then
+    echo ">>> found existing Boost zip"
+else
+    echo ">>> downloading Boost source code"
+    wget "$BOOST_URL"
+fi
 
 echo ">>> extracting Boost source code"
 unzip -q "$BOOST_ZIP"
 
-echo ">>> downloading LLVM source code"
-wget "$LLVM_URL"
+if test -d "$LLVM_ZIP"; then
+    echo ">>> found existing LLVM zip"
+else
+    echo ">>> downloading LLVM source code"
+    wget "$LLVM_URL"
+fi
 
 echo ">>> extracting LLVM source code"
 unzip -q "$LLVM_ZIP"
