@@ -5,8 +5,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: echo "CC=gcc-14.2" >> $GITHUB_ENV
-      - run: echo "CXX=g++-14.2" >> $GITHUB_ENV
+      - run: echo "CC=gcc-14" >> $GITHUB_ENV
+      - run: echo "CXX=g++-14" >> $GITHUB_ENV
       - run: ./setup.sh
         working-directory: .
       - run: python3 run.py check
