@@ -2,7 +2,7 @@
 
 set -e
 
-N_THREADS=8
+N_THREADS=4
 BOOST_URL="https://archives.boost.io/release/1.84.0/source/boost_1_84_0.zip"
 BOOST_ZIP="boost_1_84_0.zip"
 BOOST_DIR="boost_1_84_0"
