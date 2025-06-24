@@ -2596,8 +2596,8 @@ public:
         // prepare for rewriting
         if (sccnontrivial) {
           if (insertions.count(ftdecl) == 0) {
-            auto ln = context.getFullLoc(ftdecl->getBeginLoc()).getSpellingLineNumber();
-            std::string header = "// added by concept-synth, original LN: " + std::to_string(ln);
+            // auto ln = context.getFullLoc(ftdecl->getBeginLoc()).getSpellingLineNumber();
+            std::string header = "// !!! added by concept-synthesizer";
             insertions[ftdecl] = "\n" + header + "\nrequires\n" + sccstr;
           } else {
             insertions[ftdecl] = insertions[ftdecl] + " &&\n" + sccstr;

@@ -1,5 +1,7 @@
 # concept-synthesizer
 
+![](https://github.com/sdingcn/concept-synthesizer/actions/workflows/run_test.yml/badge.svg)
+
 automatically synthesizing C++20 template constraints for function templates
 
 ## dependencies
@@ -25,7 +27,6 @@ before running the synthesizer.*
   -isystem ./llvm-project-llvmorg-19.1.1/build_headers/include/c++/v1 \
   -std=c++20 \
   -E \
-  -P \
   -I<include-path-1> -I<include-path-2> ... \
   -o <file-path>.ii \
   <file-path>.cpp
@@ -46,9 +47,12 @@ The synthesizer prints 5 sections to the standard output.
 
 ### run the automatic testing script
 
-Run `python3 measure.py` to run the synthesizer on
+Run `python3 run.py check` to do a quick check of everything.
+This is also what the CI currently does.
+
+Run `python3 run.py measure` to run the synthesizer on
 `test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,
-and report error message reductions.
+and report error message reduction statistics.
 
 ## miscellaneous
 

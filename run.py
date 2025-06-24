@@ -17,7 +17,7 @@ def execute(cmd: List[str], i: Union[None, str] = None) -> Tuple[int, str, str]:
     return (result.returncode, result.stdout, result.stderr)
 
 def call_preprocessor(f_path: str, h_paths: List[str]) -> str:
-    cmd = [CLANG, "-nostdinc++", "-isystem", HEADERS, "-std=c++20", "-E", "-P", f_path]
+    cmd = [CLANG, "-nostdinc++", "-isystem", HEADERS, "-std=c++20", "-E", f_path]
     for h_path in h_paths:
         cmd.append("-I" + h_path)
     result = execute(cmd)
@@ -31,6 +31,20 @@ def call_synthesizer(f_path: str) -> str:
     if result[0] != 0:
         sys.exit(f"Error: {cmd} failed\n{result[2]}")
     return result[1]
+
+def run_test(f_path: str, h_paths: List[str]) -> None:
+    print(f">>> testing {f_path} ... ", end = "", flush = True)
+    ii_path = os.path.splitext(f_path)[0] + ".ii"
+    ii_code = call_preprocessor(f_path, h_paths)
+    with open(ii_path, "w") as f:
+        f.write(ii_code)
+    syn_path = os.path.splitext(f_path)[0] + ".syn"
+    syn_code = call_synthesizer(ii_path)
+    with open(syn_path, "w") as f:
+        f.write(syn_code)
+    if "// !!! added by concept-synthesizer" not in syn_code:
+        sys.exit("Error: didn't find synthesizer marks in output")
+    print("OK")
 
 def cut_synthesizer_output_section(output: str, section: str) -> str:
     section_header = f'[-[{section}]-]'
@@ -102,12 +116,6 @@ def run_benchmark(f_path: str, h_paths: List[str], name_prefix: str) -> None:
         error2 = get_error_message(compose_invalid_code(constrained_code, call))
         if "constraints not satisfied" in error2:
             constraint_not_satisfied_count += 1
-        if i % 10 == 0:
-            print("* sample {{{")
-            print(error1)
-            print("* ===")
-            print(error2)
-            print("* }}}")
         original_error_length = len(error1.splitlines())
         constrained_error_length = len(error2.splitlines())
         print(f"{i + 1}/{n}: original = {original_error_length}\t"
@@ -129,5 +137,13 @@ def run_benchmark(f_path: str, h_paths: List[str], name_prefix: str) -> None:
             print(f"[{begin}, {end}) = {count}")
 
 if __name__ == "__main__":
-    run_benchmark("./test/stl_algorithm.cpp", [], "")
-    run_benchmark("./test/boost_special_functions.cpp", ["./boost_1_84_0/"], "boost")
+    if len(sys.argv) != 2 or sys.argv[1] not in ["check", "measure"]:
+        sys.exit(f"Usage: python3 {sys.argv[0]} check/measure")
+    elif sys.argv[1] == "check":
+        run_test("./test/example.cpp", [])
+        run_test("./test/stl_algorithm.cpp", [])
+        run_test("./test/boost_special_functions.cpp", ["./boost_1_84_0/"])
+    else:
+        run_benchmark("./test/stl_algorithm.cpp", [], "")
+        run_benchmark("./test/boost_special_functions.cpp", ["./boost_1_84_0/"], "boost")
+

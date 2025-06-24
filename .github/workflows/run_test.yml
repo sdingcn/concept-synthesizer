@@ -1,0 +1,11 @@
+name: run_test
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./setup.sh
+        working-directory: .
+      - run: python3 run.py check
+        working-directory: .
