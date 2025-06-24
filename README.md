@@ -7,7 +7,8 @@ automatically synthesizing C++20 template constraints for function templates
 ## dependencies
 
 + Platform: MacOS/Linux.
-+ Software: python3 (>= 3.5), wget, unzip, git, cmake, make, clang++/g++.
++ Software: python3 (>= 3.5), wget, unzip, git,
+  cmake, make, Clang (>= 17) / AppleClang (>= 15) / GCC (>= 14).
 
 ## setup
 
