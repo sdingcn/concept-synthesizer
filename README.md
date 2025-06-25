@@ -4,21 +4,39 @@
 
 automatically synthesizing C++20 template constraints for function templates
 
-## dependencies
+## build
 
-+ Platform: MacOS/Linux.
-+ Software: python3 (>= 3.5), wget, unzip, git,
+After cloning the repository,
+you can either build the project directly on your machine,
+or build it inside Docker.
+
+*In either case, you may want to change N_THREADS in `setup.sh` before running it.*
+
+### normal build
+
++ Platform dependencies: MacOS/Linux.
++ Software dependencies: python3 (>= 3.5), wget, unzip, git,
   cmake, make, Clang (>= 17) / AppleClang (>= 15) / GCC (>= 14).
 
-## setup
+```
+./setup.sh
+```
 
-Run `./setup.sh` to download LLVM and Boost (only needed for testing) and build the project.
+### Docker build
+
+```
+docker build -t concept-synthesizer-image .
+docker run --rm -ti concept-synthesizer-image /bin/bash
+cd workspace/
+CC=gcc-14 CXX=g++-14 ./setup.sh
+```
 
 ## run
 
 *If you are on MacOS, you may need to run
 `export SDKROOT=$(xcrun --sdk macosx --show-sdk-path)`
-before running the synthesizer.*
+before running the synthesizer. You certainly
+don't need this inside the above Docker container.*
 
 ### run on a single file
 
@@ -54,21 +72,3 @@ This is also what the CI currently does.
 Run `python3 run.py measure` to run the synthesizer on
 `test/stl_algorithm.cpp` and `test/boost_special_functions.cpp`,
 and report error message reduction statistics.
-
-## miscellaneous
-
-### Docker images
-
-If you want to build the project into a Docker image,
-It's recommended to build a linux/amd64 image which can then run on both
-amd64 and Apple M1 (arm64) (through Rosetta 2) as described
-[here](https://stackoverflow.com/questions/67458621/how-to-run-amd64-docker-image-on-arm64-host-platform).
-The reverse direction looks
-[more complicated](https://stackoverflow.com/questions/68675532/how-to-run-arm64-docker-images-on-amd64-host-platform).
-Multi-platform images also look
-[more complicated](https://docs.docker.com/build/building/multi-platform/).
-
-### known issues
-
-It is known that the experimental numbers may change among
-different runs. The reason is being investigated, but should be non-essential.
